@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Resume Screening</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <h1>AI Resume Screening System</h1>
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data">
+        <label>Upload Resume (PDF)</label>
+        <input type="file" name="resume" required>
+
+        <label>Paste Job Description</label>
+        <textarea name="jobdesc" rows="8" required></textarea>
+
+        <button type="submit">Analyze Resume</button>
+    </form>
+</div>
+
+<footer>
+    © 2026 Advit Umesh Nayak
+</footer>
+
+</body>
+</html>

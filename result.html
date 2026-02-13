@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Resume Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container result-box">
+
+    <h1>Resume Analysis Result</h1>
+
+    <div class="score-box">
+        <h2>{{ score }}%</h2>
+        <p>Match Score</p>
+    </div>
+
+    <div class="meta">
+        <p><strong>ATS Rating:</strong> {{ ats_rating }}</p>
+        <p><strong>Total Characters:</strong> {{ total_chars }}</p>
+    </div>
+
+    <h3>Matched Keywords</h3>
+    <div class="keywords green">
+        {% for word in matched %}
+            <span>{{ word }}</span>
+        {% endfor %}
+    </div>
+
+    <h3>Missing Keywords</h3>
+    <div class="keywords red">
+        {% for word in missing %}
+            <span>{{ word }}</span>
+        {% endfor %}
+    </div>
+
+    <a href="/">Analyze Again</a>
+
+</div>
+
+<footer>
+    © 2026 Advit Umesh Nayak
+</footer>
+
+</body>
+</html>
