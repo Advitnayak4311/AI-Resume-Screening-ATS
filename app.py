@@ -5,13 +5,9 @@ import re
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-app.config["UPLOAD_FOLDER"] = "uploads"
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # Limit uploads to 16MB
 
 ALLOWED_EXTENSIONS = {"pdf"}
-
-if not os.path.exists("uploads"):
-    os.makedirs("uploads")
 
 
 def allowed_file(filename):
@@ -44,10 +40,19 @@ STOP_WORDS = {
 # -------------------------
 # Extract text from PDF
 # -------------------------
-def extract_text_from_pdf(file_path):
+def extract_text_from_pdf(file_source):
     text = ""
-    with open(file_path, "rb") as file:
-        reader = PyPDF2.PdfReader(file)
+    # Check if the source is a file path string or an in-memory stream
+    if isinstance(file_source, str):
+        with open(file_source, "rb") as file:
+            reader = PyPDF2.PdfReader(file)
+            for page in reader.pages:
+                page_text = page.extract_text()
+                if page_text:
+                    text += page_text + "\n"
+    else:
+        # Read directly from the file stream in-memory
+        reader = PyPDF2.PdfReader(file_source)
         for page in reader.pages:
             page_text = page.extract_text()
             if page_text:
@@ -157,7 +162,7 @@ def home():
 
         if not file or file.filename == "":
             if os.path.exists("Advit Umesh Nayak.pdf"):
-                file_path = "Advit Umesh Nayak.pdf"
+                file_source = "Advit Umesh Nayak.pdf"
             else:
                 return render_template(
                     "index.html", error="Please upload a resume file."
@@ -168,13 +173,11 @@ def home():
                     "index.html",
                     error="Unsupported file format. Please upload a PDF file.",
                 )
-
-            filename = secure_filename(file.filename)
-            file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-            file.save(file_path)
+            # Use the in-memory stream directly to avoid writing to Vercel's read-only filesystem
+            file_source = file.stream
 
         try:
-            resume_text = extract_text_from_pdf(file_path)
+            resume_text = extract_text_from_pdf(file_source)
             if not resume_text.strip():
                 return render_template(
                     "index.html",
