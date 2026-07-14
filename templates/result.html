@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Analysis Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container result-box">
+    <h1>Analysis Results</h1>
+    <p class="subtitle">Detailed breakdown of your resume compatibility.</p>
+
+    <!-- Animated SVG Gauge -->
+    <div class="score-container">
+        <svg class="gauge-svg" viewBox="0 0 170 170">
+            <circle class="gauge-bg" cx="85" cy="85" r="75"></circle>
+            <circle class="gauge-fill" id="gauge-path" cx="85" cy="85" r="75"></circle>
+        </svg>
+        <div class="gauge-text">
+            <div class="gauge-score">{{ score }}%</div>
+            <div class="gauge-label">Match Score</div>
+        </div>
+    </div>
+
+    <!-- ATS Rating Pill -->
+    <div>
+        {% if ats_rating == 'Excellent' %}
+            <span class="rating-badge rating-excellent">ATS Rating: {{ ats_rating }}</span>
+        {% elif ats_rating == 'Good' %}
+            <span class="rating-badge rating-good">ATS Rating: {{ ats_rating }}</span>
+        {% elif ats_rating == 'Average' %}
+            <span class="rating-badge rating-average">ATS Rating: {{ ats_rating }}</span>
+        {% else %}
+            <span class="rating-badge rating-low">ATS Rating: {{ ats_rating }}</span>
+        {% endif %}
+    </div>
+
+    <!-- Metadata Details -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <strong>Analyzed Characters:</strong> {{ total_chars }}
+        </div>
+    </div>
+
+    <!-- Actionable Optimization Tips -->
+    {% if tips %}
+        <div class="tips-card">
+            <h3>
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                </svg>
+                Resume Optimization Tips
+            </h3>
+            <ul class="tips-list">
+                {% for tip in tips %}
+                    <li>{{ tip }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <!-- Matched Keywords -->
+    <div class="keyword-section">
+        <h3>Matched Keywords / Skills ({{ matched|length }})</h3>
+        {% if matched %}
+            <div class="keywords green">
+                {% for word in matched %}
+                    <span class="keyword-tag">{{ word }}</span>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="no-keywords">No keyword matches found. Try uploading a more detailed resume.</p>
+        {% endif %}
+    </div>
+
+    <!-- Missing Keywords -->
+    <div class="keyword-section">
+        <h3>Missing Keywords / Skills Gaps ({{ missing|length }})</h3>
+        {% if missing %}
+            <div class="keywords red">
+                {% for word in missing %}
+                    <span class="keyword-tag">{{ word }}</span>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="no-keywords">No missing keywords detected! You have excellent alignment.</p>
+        {% endif %}
+    </div>
+
+    <div style="margin-top: 40px;">
+        <a href="/" class="back-btn">Analyze Another Resume</a>
+    </div>
+
+</div>
+
+<footer>
+    © 2026 Advit Umesh Nayak. Refactored for live deployment.
+</footer>
+
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const gauge = document.getElementById('gauge-path');
+        const score = {{ score }};
+        const radius = gauge.r.baseVal.value;
+        const circumference = 2 * Math.PI * radius;
+        
+        // Match color variables with ratings
+        if (score >= 75) {
+            gauge.style.stroke = 'var(--color-success)';
+        } else if (score >= 50) {
+            gauge.style.stroke = 'var(--color-primary)';
+        } else if (score >= 30) {
+            gauge.style.stroke = 'var(--color-warning)';
+        } else {
+            gauge.style.stroke = 'var(--color-danger)';
+        }
+        
+        // SVG circle gauge animation stroke offset
+        const offset = circumference - (score / 100) * circumference;
+        gauge.style.strokeDasharray = circumference;
+        gauge.style.strokeDashoffset = circumference;
+        
+        setTimeout(() => {
+            gauge.style.strokeDashoffset = offset;
+        }, 150);
+    });
+</script>
+
+</body>
+</html>

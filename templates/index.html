@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Screening System (ATS Simulator)</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <h1>ATS Resume Analyzer</h1>
+    <p class="subtitle">Evaluate your resume compatibility with any job description instantly.</p>
+
+    {% if error %}
+        <div class="error">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+            <span>{{ error }}</span>
+        </div>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data" id="analysis-form">
+        <!-- Interactive File Dropzone -->
+        <div class="dropzone-container">
+            <label class="dropzone-label">Upload Resume (PDF)</label>
+            <div class="dropzone" id="dropzone">
+                <input type="file" name="resume" id="file-input" accept=".pdf" style="display: none;">
+                <div class="dropzone-icon">
+                    <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                    </svg>
+                </div>
+                <div class="dropzone-text">Drag & drop your resume here or <span>browse</span></div>
+                <div class="dropzone-hint">Supports PDF files up to 16MB. If empty, the system defaults to sample resume.</div>
+            </div>
+            
+            <!-- File Info Preview Badge -->
+            <div id="file-info">
+                <div class="file-details">
+                    <svg class="file-icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <span id="file-name">filename.pdf</span>
+                    <span id="file-size" style="color: var(--text-secondary); font-size: 0.8rem;">(0 KB)</span>
+                </div>
+                <button type="button" class="remove-file" id="remove-file">Remove</button>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="jobdesc">Paste Job Description</label>
+            <textarea name="jobdesc" id="jobdesc" rows="8" placeholder="Paste the job description or required skills here..." required></textarea>
+        </div>
+
+        <button type="submit">Analyze Compatibility</button>
+    </form>
+</div>
+
+<footer>
+    © 2026 Advit Umesh Nayak. Refactored for live deployment.
+</footer>
+
+<script>
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('file-input');
+    const fileInfo = document.getElementById('file-info');
+    const fileName = document.getElementById('file-name');
+    const fileSize = document.getElementById('file-size');
+    const removeFileBtn = document.getElementById('remove-file');
+
+    // Trigger click on file input when dropzone is clicked
+    dropzone.addEventListener('click', () => fileInput.click());
+
+    // Drag-over styling events
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            dropzone.classList.add('dragover');
+        }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('dragover');
+        }, false);
+    });
+
+    // Drop handler
+    dropzone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            updateFileDetails();
+        }
+    });
+
+    // File input change handler
+    fileInput.addEventListener('change', updateFileDetails);
+
+    // Update UI helper
+    function updateFileDetails() {
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            fileName.textContent = file.name;
+            const sizeInKb = (file.size / 1024).toFixed(1);
+            fileSize.textContent = `(${sizeInKb} KB)`;
+            fileInfo.style.display = 'flex';
+        } else {
+            fileInfo.style.display = 'none';
+        }
+    }
+
+    // Remove file handler
+    removeFileBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        fileInput.value = '';
+        fileInfo.style.display = 'none';
+    });
+</script>
+
+</body>
+</html>

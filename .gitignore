@@ -1,0 +1,9 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+uploads/*
+!uploads/.gitkeep
+.DS_Store
+.idea/
+.vscode/
